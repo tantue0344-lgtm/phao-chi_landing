@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guline - Chuyên sản xuất và phân phối phào chỉ trang trí cao cấp. Đa dạng mẫu mã, chất lượng vượt trội, giá cả hợp lý.">
+    <title>Guline - Phào Chỉ Trang Trí Cao Cấp</title>
+
+    <!-- Phông chữ Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Thư viện biểu tượng Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tệp định kiểu của website -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <!-- ========== ĐẦU TRANG VÀ THANH ĐIỀU HƯỚNG ========== -->
+    <header class="navbar" id="navbar">
+        <div class="container navbar__inner">
+            <a href="#" class="navbar__logo">
+                <img class="site-logo-image" alt="Logo công ty" hidden>
+                <span class="site-company-name">Guline</span>
+            </a>
+
+            <nav class="navbar__menu" id="navMenu">
+                <ul class="navbar__list">
+                    <li><a href="#hero" class="navbar__link active">Trang Chủ</a></li>
+                    <li><a href="#categories" class="navbar__link">Danh Mục</a></li>
+                    <li><a href="#products" class="navbar__link">Sản Phẩm</a></li>
+                    <li><a href="#about" class="navbar__link">Về Chúng Tôi</a></li>
+                    <li><a href="#contact" class="navbar__link">Liên Hệ</a></li>
+                </ul>
+            </nav>
+
+            <div class="navbar__actions">
+                <a href="tel:0356678961" class="navbar__phone" id="navbarPhone">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>0356678961</span>
+                </a>
+                <button class="navbar__toggle" id="navToggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== ẢNH TRÌNH CHIẾU ĐẦU TRANG ========== -->
+    <section class="hero" id="hero">
+        <div class="hero__slider" id="heroSlider">
+            <div class="hero__slides" id="heroSlides">
+                <!-- Các ảnh trình chiếu được tải động -->
+            </div>
+            <button class="hero__arrow hero__arrow--prev" id="heroPrev" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="hero__arrow hero__arrow--next" id="heroNext" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="hero__dots" id="heroDots"></div>
+        </div>
+        <!-- Nội dung dự phòng hiển thị khi đang tải hoặc xảy ra lỗi -->
+        <div class="hero__fallback" id="heroFallback">
+            <div class="hero__overlay"></div>
+            <div class="container hero__content">
+                <h1 class="hero__title animate-fade-up">Phào Chỉ Trang Trí Cao Cấp</h1>
+                <p class="hero__subtitle animate-fade-up">Nâng tầm không gian sống với những đường nét tinh xảo, sang trọng và đẳng cấp</p>
+                <a href="#products" class="btn btn--primary hero__cta animate-fade-up">Khám Phá Ngay</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PHẦN GIỚI THIỆU ========== -->
+    <section class="about section" id="about">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag" id="aboutTitle">Về Chúng Tôi</span>
+                <h2 class="section__title" id="aboutSectionTitle">Đơn Vị Hàng Đầu Về Phào Chỉ Trang Trí</h2>
+                <div class="section__divider"></div>
+            </div>
+
+            <div class="about__grid">
+                <div class="about__image animate-on-scroll">
+                    <div class="about__image-wrapper">
+                        <img id="aboutImage" src="/images/about-placeholder.jpg" alt="Về Chúng Tôi" onerror="this.style.display='none'; this.parentElement.classList.add('about__image-placeholder');">
+                        <div class="about__image-badge">
+                            <span class="about__badge-number" id="aboutBadgeNumber">15+</span>
+                            <span class="about__badge-text" id="aboutBadgeText">Năm Kinh Nghiệm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about__content animate-on-scroll">
+                    <h3 class="about__heading" id="aboutHeading">Phào Chỉ Việt – Kiến Tạo Vẻ Đẹp Cho Mọi Công Trình</h3>
+                    <p class="about__text" id="aboutText">
+                        Với hơn 15 năm kinh nghiệm trong lĩnh vực sản xuất và phân phối phào chỉ trang trí, 
+                        chúng tôi tự hào là đơn vị tiên phong mang đến những sản phẩm chất lượng cao, 
+                        đa dạng mẫu mã với giá cả cạnh tranh nhất thị trường.
+                    </p>
+                    <p class="about__text" id="aboutTextSecondary">
+                        Mỗi sản phẩm phào chỉ của chúng tôi được chế tác tỉ mỉ từ những nguyên liệu tốt nhất, 
+                        kết hợp giữa nghệ thuật truyền thống và công nghệ hiện đại, tạo nên những đường nét 
+                        tinh xảo hoàn hảo cho không gian sống của bạn.
+                    </p>
+
+                    <div class="about__stats" id="aboutStats">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PHẦN DANH MỤC ========== -->
+    <section class="categories section section--dark" id="categories">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag">Danh Mục</span>
+                <h2 class="section__title">Danh Mục Sản Phẩm</h2>
+                <div class="section__divider"></div>
+                <p class="section__desc">Khám phá các dòng sản phẩm phào chỉ trang trí đa dạng của chúng tôi</p>
+            </div>
+
+            <div class="categories__grid" id="categoriesGrid">
+                <!-- Danh mục được tải động -->
+                <div class="loading-spinner" id="categoriesLoading">
+                    <div class="spinner"></div>
+                    <p>Đang tải danh mục...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SẢN PHẨM NỔI BẬT ========== -->
+    <section class="featured section" id="featured">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag">Nổi Bật</span>
+                <h2 class="section__title">Sản Phẩm Nổi Bật</h2>
+                <div class="section__divider"></div>
+                <p class="section__desc">Những sản phẩm được khách hàng yêu thích và lựa chọn nhiều nhất</p>
+            </div>
+
+            <div class="products__grid" id="featuredGrid">
+                <div class="loading-spinner" id="featuredLoading">
+                    <div class="spinner"></div>
+                    <p>Đang tải sản phẩm...</p>
+                </div>
+            </div>
+
+            <div class="featured__action animate-on-scroll">
+                <a href="#products" class="btn btn--primary">
+                    <span>Xem Tất Cả Sản Phẩm</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PHẦN TẤT CẢ SẢN PHẨM ========== -->
+    <section class="products section section--light" id="products">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag">Sản Phẩm</span>
+                <h2 class="section__title">Tất Cả Sản Phẩm</h2>
+                <div class="section__divider"></div>
+            </div>
+
+            <!-- Các thẻ lọc theo danh mục -->
+            <div class="products__filters animate-on-scroll" id="productFilters">
+                <button class="products__filter active" data-category="all">Tất Cả</button>
+                <!-- Các nút lọc được tải động -->
+            </div>
+
+            <div class="products__grid" id="productsGrid">
+                <div class="loading-spinner" id="productsLoading">
+                    <div class="spinner"></div>
+                    <p>Đang tải sản phẩm...</p>
+                </div>
+            </div>
+
+            <div class="products__pagination" id="productsPagination">
+                <button class="btn btn--outline" id="loadMoreBtn" style="display:none;">
+                    <i class="fas fa-plus"></i>
+                    <span>Xem Thêm Sản Phẩm</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== LÝ DO CHỌN CHÚNG TÔI ========== -->
+    <section class="features section" id="features">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag">Tại Sao Chọn Chúng Tôi</span>
+                <h2 class="section__title" id="featuresTitle">Cam Kết Của Chúng Tôi</h2>
+                <div class="section__divider"></div>
+            </div>
+
+            <div class="features__grid" id="featuresGrid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-card__icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="feature-card__title">Chất Lượng Cao</h3>
+                    <p class="feature-card__text">
+                        Sản phẩm được sản xuất từ nguyên liệu cao cấp, quy trình kiểm soát chất lượng nghiêm ngặt, 
+                        đảm bảo độ bền và tính thẩm mỹ vượt trội.
+                    </p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-card__icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3 class="feature-card__title">Giá Cả Hợp Lý</h3>
+                    <p class="feature-card__text">
+                        Là nhà sản xuất trực tiếp, chúng tôi cam kết mang đến mức giá tốt nhất 
+                        mà không qua trung gian, tiết kiệm chi phí cho khách hàng.
+                    </p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-card__icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3 class="feature-card__title">Giao Hàng Nhanh</h3>
+                    <p class="feature-card__text">
+                        Hệ thống kho hàng rộng khắp, đội ngũ vận chuyển chuyên nghiệp, 
+                        đảm bảo giao hàng nhanh chóng và an toàn trên toàn quốc.
+                    </p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-card__icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-card__title">Bảo Hành Dài Hạn</h3>
+                    <p class="feature-card__text">
+                        Chính sách bảo hành lên đến 10 năm, đội ngũ kỹ thuật hỗ trợ tận tình, 
+                        mang đến sự yên tâm tuyệt đối cho khách hàng.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PHẦN LIÊN HỆ ========== -->
+    <section class="contact section section--dark" id="contact">
+        <div class="container">
+            <div class="section__header animate-on-scroll">
+                <span class="section__tag">Liên Hệ</span>
+                <h2 class="section__title">Liên Hệ Với Chúng Tôi</h2>
+                <div class="section__divider"></div>
+                <p class="section__desc">Hãy để lại thông tin, chúng tôi sẽ liên hệ tư vấn miễn phí cho bạn</p>
+            </div>
+
+            <div class="contact__grid">
+                <!-- Biểu mẫu liên hệ -->
+                <div class="contact__form-wrapper animate-on-scroll">
+                    <form class="contact__form" id="contactForm" novalidate>
+                        <div class="form-group">
+                            <label for="contactName" class="form-label">
+                                <i class="fas fa-user"></i> Họ và Tên <span class="required">*</span>
+                            </label>
+                            <input type="text" id="contactName" name="name" class="form-input" 
+                                   placeholder="Nhập họ và tên của bạn" required>
+                            <span class="form-error" id="nameError"></span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactEmailInput" class="form-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </label>
+                                <input type="email" id="contactEmailInput" name="email" class="form-input" 
+                                       placeholder="email@example.com">
+                                <span class="form-error" id="emailError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactPhoneInput" class="form-label">
+                                    <i class="fas fa-phone"></i> Số Điện Thoại <span class="required">*</span>
+                                </label>
+                                <input type="tel" id="contactPhoneInput" name="phone" class="form-input" 
+                                       placeholder="0901 234 567" required>
+                                <span class="form-error" id="phoneError"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactMessage" class="form-label">
+                                <i class="fas fa-comment-dots"></i> Nội Dung
+                            </label>
+                            <textarea id="contactMessage" name="message" class="form-input form-textarea" 
+                                      rows="5" placeholder="Nhập nội dung tin nhắn..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn--primary btn--block" id="contactSubmitBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Gửi Tin Nhắn</span>
+                        </button>
+
+                        <div class="form-message" id="formMessage"></div>
+                    </form>
+                </div>
+
+                <!-- Thông tin liên hệ -->
+                <div class="contact__info animate-on-scroll">
+                    <div class="contact__info-card">
+                        <div class="contact__info-item">
+                            <div class="contact__info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h4>Địa Chỉ</h4>
+                                <p id="contactAddress">236/2, TL41, An Phú Đông, Hồ Chí Minh</p>
+                            </div>
+                        </div>
+
+                        <div class="contact__info-item">
+                            <div class="contact__info-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div>
+                                <h4>Zalo</h4>
+                                <p><a href="https://zalo.me/0356678961" id="contactPhone">0356678961</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact__info-item">
+                            <div class="contact__info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4>Email</h4>
+                                <p><a href="mailto:tantue0344@gmail.com" id="contactEmail">tantue0344@gmail.com</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact__info-item">
+                            <div class="contact__info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <h4>Giờ Làm Việc</h4>
+                                <p>Phục vụ 24/24</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vị trí bản đồ -->
+                    <div class="contact__map">
+                        <div class="contact__map-placeholder">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <p>Bản đồ vị trí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CHÂN TRANG ========== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <!-- Thông tin công ty -->
+                <div class="footer__col">
+                    <a href="#" class="footer__logo">
+                        <img class="site-logo-image" alt="Logo công ty" hidden>
+                        <span class="site-company-name">Guline</span>
+                    </a>
+                    <p class="footer__about" id="footerAbout">
+                        Chuyên sản xuất và phân phối phào chỉ trang trí cao cấp. Đa dạng mẫu mã, chất lượng vượt trội, giá cả hợp lý.
+                    </p>
+                    <div class="footer__social" id="footerSocialLinks"></div>
+                </div>
+
+                <!-- Liên kết nhanh -->
+                <div class="footer__col">
+                    <h4 class="footer__heading">Liên Kết Nhanh</h4>
+                    <ul class="footer__links">
+                        <li><a href="#hero"><i class="fas fa-angle-right"></i> Trang Chủ</a></li>
+                        <li><a href="#about"><i class="fas fa-angle-right"></i> Về Chúng Tôi</a></li>
+                        <li><a href="#categories"><i class="fas fa-angle-right"></i> Danh Mục</a></li>
+                        <li><a href="#products"><i class="fas fa-angle-right"></i> Sản Phẩm</a></li>
+                        <li><a href="#contact"><i class="fas fa-angle-right"></i> Liên Hệ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Danh mục -->
+                <div class="footer__col">
+                    <h4 class="footer__heading">Danh Mục Sản Phẩm</h4>
+                    <ul class="footer__links" id="footerCategories">
+                        <li><span>Đang tải danh mục...</span></li>
+                    </ul>
+                </div>
+
+                <!-- Thông tin liên hệ -->
+                <div class="footer__col">
+                    <h4 class="footer__heading">Thông Tin Liên Hệ</h4>
+                    <ul class="footer__contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="footerAddress">236/2, TL41, An Phú Đông, Hồ Chí Minh</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-comment-dots"></i>
+                            <a href="https://zalo.me/0356678961" id="footerPhone">0356678961</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:tantue0344@gmail.com" id="footerEmail">tantue0344@gmail.com</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>Phục vụ 24/24</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p id="footerCopyright">&copy; 2026 Guline. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== HỘP THOẠI CHI TIẾT SẢN PHẨM ========== -->
+    <div class="modal" id="productModal">
+        <div class="modal__overlay" id="modalOverlay"></div>
+        <div class="modal__content">
+            <button class="modal__close" id="modalClose" aria-label="Đóng">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal__body" id="modalBody">
+                <!-- Chi tiết sản phẩm được tải động -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NÚT CUỘN LÊN ĐẦU TRANG ========== -->
+    <button class="scroll-top" id="scrollTopBtn" aria-label="Lên đầu trang">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Tệp JavaScript chính -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
