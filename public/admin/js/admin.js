@@ -105,11 +105,13 @@
 
     // ========== HÀM TIỆN ÍCH ==========
 
+    // Định dạng giá theo quy ước tiền tệ Việt Nam.
     function formatPrice(price) {
         if (!price && price !== 0) return '—';
         return Number(price).toLocaleString('vi-VN') + ' ₫';
     }
 
+    // Chuyển ngày từ API thành chuỗi ngày giờ dễ đọc.
     function formatDate(dateStr) {
         if (!dateStr) return '—';
         const d = new Date(dateStr);
@@ -122,16 +124,19 @@
         });
     }
 
+    // Rút gọn văn bản dài để giữ bảng và thẻ nội dung gọn.
     function truncateText(text, len = 60) {
         if (!text) return '';
         return text.length > len ? text.substring(0, len) + '...' : text;
     }
 
+    // Chuẩn hóa các kiểu giá trị bật/tắt thường gặp từ API.
     function isEnabled(value, defaultValue = true) {
         if (value === undefined || value === null) return defaultValue;
         return value === true || value === 1 || value === '1' || value === 'true';
     }
 
+    // Mã hóa dữ liệu trước khi chèn vào HTML được render động.
     function escapeHtml(str) {
         if (!str) return '';
         const div = document.createElement('div');
@@ -141,6 +146,7 @@
 
     // ========== HÀM GỌI API ==========
 
+    // Gọi API admin kèm cookie, chuẩn hóa JSON và xử lý phiên hết hạn.
     async function apiFetch(url, options = {}) {
         const defaultOpts = {
             credentials: 'include',
@@ -175,6 +181,7 @@
         }
     }
 
+    // Gửi một ảnh lên server và trả về URL ảnh đã lưu.
     async function uploadImage(file) {
         const formData = new FormData();
         formData.append('image', file);
@@ -187,6 +194,7 @@
 
     // ========== THÔNG BÁO NHANH ==========
 
+    // Hiển thị thông báo tạm thời cho các thao tác trong trang quản trị.
     window.showToast = function (message, type = 'info', duration = 4000) {
         const container = document.getElementById('toast-container');
         const icons = {
@@ -211,6 +219,7 @@
 
     // ========== HỘP THOẠI XÁC NHẬN ==========
 
+    // Mở hộp thoại xác nhận và trả về true nếu người dùng đồng ý.
     function showConfirm(title, message) {
         return new Promise((resolve) => {
             const overlay = document.getElementById('confirm-overlay');
@@ -221,6 +230,7 @@
             const okBtn = document.getElementById('confirm-ok');
             const cancelBtn = document.getElementById('confirm-cancel');
 
+            // Gỡ listener và phần tử dialog sau khi người dùng chọn.
             function cleanup() {
                 overlay.style.display = 'none';
                 okBtn.replaceWith(okBtn.cloneNode(true));
@@ -240,22 +250,26 @@
 
     // ========== TRẠNG THÁI ĐANG TẢI ==========
 
+    // Hiện lớp phủ báo đang xử lý tác vụ.
     function showLoading() {
         document.getElementById('loading-overlay').style.display = 'flex';
     }
 
+    // Ẩn lớp phủ báo đang xử lý tác vụ.
     function hideLoading() {
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
     // ========== HỘP THOẠI ==========
 
+    // Đóng modal nếu thao tác phát sinh từ overlay hoặc nút đóng.
     window.closeModal = function (event) {
         if (event && event.target !== event.currentTarget) return;
         document.getElementById('modal-overlay').style.display = 'none';
         document.getElementById('modal-body').innerHTML = '';
     };
 
+    // Hiển thị modal với tiêu đề và nội dung HTML đã dựng.
     function openModal(title, contentHtml) {
         document.getElementById('modal-title').textContent = title;
         document.getElementById('modal-body').innerHTML = contentHtml;
@@ -264,6 +278,7 @@
 
     // ========== XÁC THỰC ==========
 
+    // Xác minh cookie hiện tại trước khi cho phép mở khu vực quản trị.
     async function checkAuth() {
         try {
             const data = await apiFetch('/auth/me');
@@ -274,12 +289,14 @@
         }
     }
 
+    // Chuyển giao diện về màn hình đăng nhập và xóa người dùng hiện tại.
     function showLogin() {
         state.user = null;
         document.getElementById('login-page').style.display = 'flex';
         document.getElementById('admin-layout').style.display = 'none';
     }
 
+    // Hiện giao diện quản trị, cập nhật tên admin và mở route hiện tại.
     function showAdmin() {
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('admin-layout').style.display = 'flex';
@@ -315,6 +332,7 @@
         }
     });
 
+    // Gửi yêu cầu đăng xuất rồi trở về màn hình đăng nhập.
     window.handleLogout = async function (e) {
         e.preventDefault();
         try {
@@ -325,6 +343,7 @@
         showToast('Đã đăng xuất', 'info');
     };
 
+    // Chuyển trường mật khẩu giữa kiểu ẩn và hiện.
     window.togglePasswordVisibility = function () {
         const input = document.getElementById('login-password');
         const icon = input.nextElementSibling?.querySelector('i');
@@ -339,6 +358,7 @@
 
     // ========== THANH ĐIỀU HƯỚNG BÊN ==========
 
+    // Đóng/mở sidebar theo chế độ mobile hoặc desktop.
     window.toggleSidebar = function () {
         const sidebar = document.getElementById('sidebar');
         if (window.innerWidth <= 992) {
@@ -365,11 +385,13 @@
 
     // ========== ĐIỀU HƯỚNG TRANG ==========
 
+    // Đọc tên trang admin từ hash URL, mặc định là dashboard.
     function getCurrentPage() {
         const hash = window.location.hash.replace('#', '') || 'dashboard';
         return hash;
     }
 
+    // Render template của route đang chọn và tải dữ liệu tương ứng.
     function handleRoute() {
         const page = getCurrentPage();
         const content = document.getElementById('main-content');
@@ -402,6 +424,7 @@
         if (state.user) handleRoute();
     });
 
+    // Chọn hàm tải dữ liệu theo tên trang quản trị.
     async function loadPageData(page) {
         switch (page) {
             case 'dashboard':
@@ -433,6 +456,7 @@
 
     // ========== LỊCH SỬ THAO TÁC QUẢN TRỊ ==========
 
+    // Định dạng kích thước ảnh thành B, KB hoặc MB.
     function formatFileSize(bytes) {
         const size = Number(bytes) || 0;
         if (size < 1024) return `${size} B`;
@@ -440,6 +464,7 @@
         return `${(size / (1024 * 1024)).toFixed(2)} MB`;
     }
 
+    // Tải lịch sử ảnh, tổng dung lượng và trạng thái sử dụng của ảnh.
     async function loadUploadHistory() {
         const list = document.getElementById('upload-history-list');
         if (!list) return;
@@ -481,6 +506,7 @@
 
     window.loadUploadHistory = loadUploadHistory;
 
+    // Xác nhận rồi yêu cầu server xóa ảnh không còn được nội dung sử dụng.
     window.deleteUploadedImage = async function (id) {
         const image = state.uploadHistory.find((item) => Number(item.id) === Number(id));
         if (!image || image.in_use) return;
@@ -503,6 +529,7 @@
         }
     };
 
+    // Tải và render các thao tác quản trị được ghi trong audit log.
     async function loadAdminHistory() {
         const tbody = document.getElementById('admin-history-tbody');
         if (!tbody) return;
@@ -532,6 +559,7 @@
 
     // ========== TRANG TỔNG QUAN ==========
 
+    // Tải số liệu tổng quan và các tin nhắn liên hệ mới nhất.
     async function loadDashboard() {
         try {
             const [products, categories, contacts, slides] = await Promise.all([
@@ -586,6 +614,7 @@
         }
     }
 
+    // Cập nhật số tin nhắn chưa đọc trên menu điều hướng.
     function updateUnreadBadge(count) {
         const badge = document.getElementById('unread-badge');
         if (count > 0) {
@@ -598,6 +627,7 @@
 
     // ========== SẢN PHẨM ==========
 
+    // Tải danh sách sản phẩm và danh mục cần cho bộ lọc/form.
     async function loadProducts() {
         try {
             const data = await apiFetch('/products');
@@ -613,6 +643,7 @@
         }
     }
 
+    // Render bảng sản phẩm từ danh sách truyền vào hoặc state hiện tại.
     function renderProducts(list) {
         const items = list || state.products;
         const tbody = document.getElementById('products-tbody');
@@ -661,6 +692,7 @@
             .join('');
     }
 
+    // Tìm tên danh mục từ ID hoặc đối tượng danh mục của sản phẩm.
     function getCategoryName(catIdOrObj) {
         if (!catIdOrObj) return '—';
         if (typeof catIdOrObj === 'object') return catIdOrObj.name || '—';
@@ -668,6 +700,7 @@
         return cat ? cat.name : catIdOrObj;
     }
 
+    // Lọc danh sách sản phẩm theo từ khóa nhập trong ô tìm kiếm.
     window.filterProducts = function () {
         const q = document.getElementById('product-search')?.value.toLowerCase() || '';
         if (!q) {
@@ -682,6 +715,7 @@
         renderProducts(filtered);
     };
 
+    // Tạo form thêm/sửa sản phẩm và nạp dữ liệu nếu đang chỉnh sửa.
     window.openProductForm = function (id) {
         const product = id ? state.products.find((p) => String(p._id || p.id) === String(id)) : null;
         const isEdit = !!product;
@@ -773,6 +807,7 @@
         openModal(title, html);
     };
 
+    // Validate cơ bản, upload ảnh nếu có rồi tạo hoặc cập nhật sản phẩm.
     window.saveProduct = async function (e, id) {
         e.preventDefault();
         const form = document.getElementById('product-form');
@@ -806,6 +841,7 @@
         }
     };
 
+    // Xác nhận và xóa sản phẩm, sau đó tải lại bảng.
     window.deleteProduct = async function (id) {
         const confirmed = await showConfirm('Xóa Sản Phẩm', 'Bạn có chắc chắn muốn xóa sản phẩm này? Thao tác không thể hoàn tác.');
         if (!confirmed) return;
@@ -824,6 +860,7 @@
 
     // ========== DANH MỤC ==========
 
+    // Tải danh sách danh mục để cập nhật state và bảng quản trị.
     async function loadCategories() {
         try {
             const data = await apiFetch('/categories');
@@ -835,6 +872,7 @@
         }
     }
 
+    // Render bảng danh mục từ danh sách truyền vào hoặc state hiện tại.
     function renderCategories(list) {
         const items = list || state.categories;
         const tbody = document.getElementById('categories-tbody');
@@ -866,6 +904,7 @@
             .join('');
     }
 
+    // Lọc danh mục theo tên hoặc mô tả đang nhập.
     window.filterCategories = function () {
         const q = document.getElementById('category-search')?.value.toLowerCase() || '';
         if (!q) {
@@ -878,6 +917,7 @@
         renderCategories(filtered);
     };
 
+    // Tạo form thêm/sửa danh mục và nạp dữ liệu nếu đang chỉnh sửa.
     window.openCategoryForm = function (id) {
         const cat = id ? state.categories.find((c) => String(c._id || c.id) === String(id)) : null;
         const isEdit = !!cat;
@@ -923,6 +963,7 @@
         openModal(title, html);
     };
 
+    // Upload ảnh nếu có rồi tạo mới hoặc cập nhật danh mục.
     window.saveCategory = async function (e, id) {
         e.preventDefault();
         const form = document.getElementById('category-form');
@@ -951,6 +992,7 @@
         }
     };
 
+    // Xác nhận và xóa danh mục, sau đó tải lại bảng.
     window.deleteCategory = async function (id) {
         const confirmed = await showConfirm('Xóa Danh Mục', 'Bạn có chắc chắn muốn xóa danh mục này? Các sản phẩm trong danh mục sẽ không bị xóa.');
         if (!confirmed) return;
@@ -969,6 +1011,7 @@
 
     // ========== ẢNH TRÌNH CHIẾU ĐẦU TRANG ==========
 
+    // Tải slide từ API và cập nhật danh sách trên trang admin.
     async function loadSlides() {
         try {
             const data = await apiFetch('/hero-slides');
@@ -980,6 +1023,7 @@
         }
     }
 
+    // Render các slide và trạng thái hoạt động thành thẻ quản trị.
     function renderSlides() {
         const grid = document.getElementById('slides-grid');
         if (!grid) return;
@@ -1025,6 +1069,7 @@
             .join('');
     }
 
+    // Tạo form thêm/sửa slide và điền dữ liệu hiện tại khi cần.
     window.openSlideForm = function (id) {
         const slide = id ? state.slides.find((s) => String(s._id || s.id) === String(id)) : null;
         const isEdit = !!slide;
@@ -1086,6 +1131,7 @@
         openModal(title, html);
     };
 
+    // Tạo mới hoặc cập nhật slide theo dữ liệu form.
     window.saveSlide = async function (e, id) {
         e.preventDefault();
         const form = document.getElementById('slide-form');
@@ -1119,6 +1165,7 @@
         }
     };
 
+    // Xác nhận và xóa slide, sau đó tải lại danh sách.
     window.deleteSlide = async function (id) {
         const confirmed = await showConfirm('Xóa Slide', 'Bạn có chắc chắn muốn xóa slide này?');
         if (!confirmed) return;
@@ -1137,6 +1184,7 @@
 
     // ========== LIÊN HỆ ==========
 
+    // Tải tin nhắn liên hệ và render bảng quản trị.
     async function loadContacts() {
         try {
             const data = await apiFetch('/contacts');
@@ -1148,6 +1196,7 @@
         }
     }
 
+    // Render danh sách liên hệ cùng trạng thái đọc và thao tác.
     function renderContacts(list) {
         const items = list || state.contacts;
         const tbody = document.getElementById('contacts-tbody');
@@ -1194,6 +1243,7 @@
             .join('');
     }
 
+    // Lọc tin nhắn liên hệ theo nội dung ô tìm kiếm.
     window.filterContacts = function () {
         const q = document.getElementById('contact-search')?.value.toLowerCase() || '';
         if (!q) {
@@ -1210,6 +1260,7 @@
         renderContacts(filtered);
     };
 
+    // Mở chi tiết liên hệ và đánh dấu đã đọc nếu cần.
     window.viewContact = async function (id) {
         const contact = state.contacts.find((c) => (c._id || c.id) === id);
         if (!contact) return;
@@ -1248,6 +1299,7 @@
         openModal('Chi Tiết Tin Nhắn', html);
     };
 
+    // Xác nhận và xóa tin nhắn liên hệ.
     window.deleteContact = async function (id) {
         const confirmed = await showConfirm('Xóa Tin Nhắn', 'Bạn có chắc chắn muốn xóa tin nhắn này?');
         if (!confirmed) return;
@@ -1266,6 +1318,7 @@
 
     // ========== CÀI ĐẶT ==========
 
+    // Tải cài đặt hiện tại rồi điền vào các trường form quản trị.
     async function loadSettings() {
         try {
             const data = await apiFetch('/settings');
@@ -1276,6 +1329,7 @@
         }
     }
 
+    // Đổ dữ liệu cài đặt và các danh sách lặp vào giao diện form.
     function fillSettingsForm() {
         const s = state.settings;
         const fields = ['companyName', 'phone', 'email', 'address', 'about'];
@@ -1333,6 +1387,7 @@
         }
     }
 
+    // Đọc/chuẩn hóa số liệu giới thiệu từ JSON hoặc dùng mặc định.
     function parseAboutStats(value) {
         if (Array.isArray(value)) return normalizeAboutStats(value);
         if (typeof value === 'string' && value.trim()) {
@@ -1349,6 +1404,7 @@
         return defaultAboutStats.map((stat) => ({ ...stat }));
     }
 
+    // Giới hạn kiểu dữ liệu của từng số liệu trước khi render/lưu.
     function normalizeAboutStats(stats) {
         return stats
             .filter((stat) => stat && typeof stat === 'object')
@@ -1360,6 +1416,7 @@
             }));
     }
 
+    // Đọc/chuẩn hóa liên kết mạng xã hội từ JSON hoặc dùng mặc định.
     function parseSocialLinks(value) {
         if (Array.isArray(value)) return normalizeSocialLinks(value);
         if (typeof value === 'string' && value.trim()) {
@@ -1374,6 +1431,7 @@
         return defaultSocialLinks.map((link) => ({ ...link }));
     }
 
+    // Chỉ giữ các trường và biểu tượng hợp lệ của liên kết mạng xã hội.
     function normalizeSocialLinks(links) {
         return links
             .filter((link) => link && typeof link === 'object')
@@ -1386,6 +1444,7 @@
             }));
     }
 
+    // Đọc danh sách mạng xã hội hiện tại từ các trường trong form.
     function readSocialLinkSettings() {
         return [...document.querySelectorAll('.setting-social-link-item')].map((item) => ({
             label: item.querySelector('[data-social-link="label"]').value.trim(),
@@ -1394,6 +1453,7 @@
         }));
     }
 
+    // Tạo các trường chỉnh sửa mạng xã hội từ danh sách đã chuẩn hóa.
     function renderSocialLinkSettings(links) {
         const list = document.getElementById('setting-social-links-list');
         if (!list) return;
@@ -1428,18 +1488,21 @@
         `).join('');
     }
 
+    // Thêm một dòng trống để nhập liên kết mạng xã hội mới.
     window.addSocialLink = function () {
         const links = readSocialLinkSettings();
         links.push({ label: '', icon: socialIconOptions[0].icon, url: '' });
         renderSocialLinkSettings(links);
     };
 
+    // Xóa dòng mạng xã hội chứa nút được nhấn.
     window.removeSocialLink = function (button) {
         const item = button.closest('.setting-social-link-item');
         if (!item) return;
         item.remove();
     };
 
+    // Đọc các số liệu giới thiệu được nhập trong form.
     function readAboutStats() {
         return [...document.querySelectorAll('.setting-about-stat-item')].map((item) => ({
             icon: item.querySelector('[data-about-stat="icon"]').value,
@@ -1449,6 +1512,7 @@
         }));
     }
 
+    // Render các trường chỉnh sửa số liệu giới thiệu.
     function renderAboutStatSettings(stats) {
         const list = document.getElementById('setting-about-stats-list');
         if (!list) return;
@@ -1491,12 +1555,14 @@
         `).join('');
     }
 
+    // Thêm một dòng số liệu giới thiệu với giá trị ban đầu hợp lệ.
     window.addAboutStat = function () {
         const stats = readAboutStats();
         stats.push({ icon: defaultAboutStats[0].icon, value: 0, suffix: '+', label: '' });
         renderAboutStatSettings(stats);
     };
 
+    // Di chuyển một dòng số liệu lên hoặc xuống trong danh sách.
     window.moveAboutStat = function (button, direction) {
         const item = button.closest('.setting-about-stat-item');
         if (!item) return;
@@ -1509,12 +1575,14 @@
         renderAboutStatSettings(stats);
     };
 
+    // Xóa dòng số liệu chứa nút được nhấn.
     window.removeAboutStat = function (button) {
         const item = button.closest('.setting-about-stat-item');
         if (!item) return;
         item.remove();
     };
 
+    // Đọc và chuẩn hóa danh sách cam kết từ JSON hoặc mặc định.
     function parseFeatures(value) {
         if (Array.isArray(value)) return value;
         if (typeof value !== 'string' || !value.trim()) {
@@ -1530,6 +1598,7 @@
         return defaultFeatures.map((feature) => ({ ...feature }));
     }
 
+    // Đọc các cam kết hiện tại từ những trường trong form.
     function readFeatureSettings() {
         return [...document.querySelectorAll('.setting-feature-item')].map((item) => ({
             icon: item.querySelector('[data-feature="icon"]').value.trim(),
@@ -1538,6 +1607,7 @@
         }));
     }
 
+    // Render các trường chỉnh sửa nội dung và biểu tượng cam kết.
     function renderFeatureSettings(features) {
         const list = document.getElementById('setting-features-list');
         if (!list) return;
@@ -1582,6 +1652,7 @@
         `).join('');
     }
 
+    // Gán biểu tượng đã chọn cho dòng cam kết tương ứng.
     window.selectFeatureIcon = function (button, iconClass) {
         const picker = button.closest('.feature-icon-picker');
         const iconInput = button.closest('.setting-feature-item')?.querySelector('[data-feature="icon"]');
@@ -1592,12 +1663,14 @@
         });
     };
 
+    // Thêm một dòng cam kết mới vào form cài đặt.
     window.addFeatureSetting = function () {
         const features = readFeatureSettings();
         features.push({ icon: 'fas fa-check', title: '', description: '' });
         renderFeatureSettings(features);
     };
 
+    // Xóa dòng cam kết chứa nút được nhấn.
     window.removeFeatureSetting = function (button) {
         const item = button.closest('.setting-feature-item');
         if (!item) return;
@@ -1607,6 +1680,7 @@
         renderFeatureSettings(features);
     };
 
+    // Di chuyển một dòng cam kết lên hoặc xuống trong danh sách.
     window.moveFeatureSetting = function (button, direction) {
         const item = button.closest('.setting-feature-item');
         if (!item) return;
@@ -1619,6 +1693,7 @@
         renderFeatureSettings(features);
     };
 
+    // Thu thập, chuẩn hóa và lưu toàn bộ cài đặt website về server.
     window.saveSettings = async function (e) {
         e.preventDefault();
         const form = document.getElementById('settings-form');
@@ -1654,6 +1729,7 @@
 
     // ========== HÀM HỖ TRỢ TẢI ẢNH ==========
 
+    // Hiển thị ảnh vừa chọn và lưu đường dẫn preview vào trường ẩn.
     window.previewImage = function (input, previewContainerId, imageUrlId) {
         const container = document.getElementById(previewContainerId);
         if (!container) return;
@@ -1672,6 +1748,7 @@
         }
     };
 
+    // Xóa preview ảnh và reset file input cùng URL tương ứng.
     window.removeImagePreview = function (previewContainerId, inputId, imageUrlId) {
         const container = document.getElementById(previewContainerId);
         const input = document.getElementById(inputId);
@@ -1683,6 +1760,7 @@
 
     // ========== SẮP XẾP BẢNG ==========
 
+    // Sắp xếp bảng theo cột được chọn và luân phiên chiều tăng/giảm.
     window.sortTable = function (entity, field) {
         const config = state.sortConfig[entity] || {};
         const dir = config.field === field && config.dir === 'asc' ? 'desc' : 'asc';

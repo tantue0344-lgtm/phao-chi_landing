@@ -6,8 +6,11 @@
     'use strict';
 
     // ============ CÁC PHẦN TỬ DOM ============
+    // Tìm một phần tử trong document hoặc phạm vi truyền vào.
     const $ = (sel, ctx = document) => ctx.querySelector(sel);
+    // Tìm tất cả phần tử phù hợp và trả về một mảng dễ thao tác.
     const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+    // Chuyển dữ liệu động thành HTML text đã escape trước khi render.
     const escapeHtml = (value) => {
         const element = document.createElement('span');
         element.textContent = value == null ? '' : String(value);
@@ -55,6 +58,7 @@
     // ============ KHỞI TẠO ============
     document.addEventListener('DOMContentLoaded', init);
 
+    // Khởi tạo tương tác trang chủ và tải dữ liệu cần render từ API.
     function init() {
         setupNavbar();
         setupSmoothScroll();
@@ -73,6 +77,7 @@
     }
 
     // ============ THANH ĐIỀU HƯỚNG ============
+    // Gắn hành vi menu desktop/mobile và đồng bộ menu khi người dùng cuộn.
     function setupNavbar() {
         // Đổi nền khi cuộn trang
         window.addEventListener('scroll', () => {
@@ -112,6 +117,7 @@
         });
     }
 
+    // Đánh dấu liên kết điều hướng tương ứng với section đang hiển thị.
     function updateActiveNavLink() {
         const sections = $$('section[id]');
         const scrollPos = window.scrollY + 150;
@@ -132,6 +138,7 @@
     }
 
     // ============ CUỘN MƯỢT ============
+    // Chuyển các liên kết neo nội bộ sang thao tác cuộn mượt.
     function setupSmoothScroll() {
         $$('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', (e) => {
@@ -148,6 +155,7 @@
     }
 
     // ============ CUỘN LÊN ĐẦU TRANG ============
+    // Hiện nút cuộn lên đầu trang và xử lý thao tác nhấn nút.
     function setupScrollToTop() {
         window.addEventListener('scroll', () => {
             if (window.scrollY > 500) {
@@ -163,6 +171,7 @@
     }
 
     // ============ THEO DÕI PHẦN TỬ (HIỆU ỨNG CUỘN) ============
+    // Theo dõi các phần tử có hiệu ứng xuất hiện khi đi vào khung nhìn.
     function setupIntersectionObserver() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -177,6 +186,7 @@
     }
 
     // Theo dõi lại các phần tử mới sau khi tải nội dung động
+    // Gắn observer cho các phần tử động chưa có trạng thái hiển thị.
     function observeNewElements() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -191,10 +201,12 @@
     }
 
     // ============ HIỆU ỨNG ĐẾM ============
+    // Bắt đầu theo dõi khu vực số liệu giới thiệu.
     function setupCounterAnimation() {
         observeCounterSection();
     }
 
+    // Chỉ chạy hoạt ảnh số liệu khi khu vực thống kê vào khung nhìn.
     function observeCounterSection() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -209,6 +221,7 @@
         if (statsSection) observer.observe(statsSection);
     }
 
+    // Tăng dần các giá trị `data-count` để tạo hiệu ứng đếm.
     function animateCounters() {
         $$('[data-count]').forEach(counter => {
             const target = parseInt(counter.dataset.count);
@@ -230,6 +243,7 @@
     }
 
     // ============ ẢNH TRÌNH CHIẾU ĐẦU TRANG ============
+    // Tải slide từ API; dùng nội dung dự phòng khi không có dữ liệu.
     async function loadHeroSlides() {
         try {
             let response = await fetch('/api/hero-slides');
@@ -251,6 +265,7 @@
         }
     }
 
+    // Tạo slide, chấm điều hướng và thao tác vuốt từ danh sách API.
     function renderHeroSlides(slides) {
         heroSection.classList.add('hero--has-slides');
         slideCount = slides.length;
@@ -299,6 +314,7 @@
         startSlideAutoPlay();
     }
 
+    // Hiển thị slide theo chỉ số, cuộn vòng khi vượt đầu hoặc cuối danh sách.
     function goToSlide(index) {
         if (slideCount === 0) return;
         currentSlide = ((index % slideCount) + slideCount) % slideCount;
@@ -309,6 +325,7 @@
         });
     }
 
+    // Khởi động lại bộ hẹn giờ tự chuyển slide.
     function startSlideAutoPlay() {
         clearInterval(slideInterval);
         slideInterval = setInterval(() => {
@@ -316,6 +333,7 @@
         }, 5000);
     }
 
+    // Ẩn slider và hiện phần nội dung hero tĩnh dự phòng.
     function showHeroFallback() {
         heroSection.classList.remove('hero--has-slides');
         heroSlider.style.display = 'none';
@@ -323,6 +341,7 @@
     }
 
     // ============ DANH MỤC ============
+    // Tải danh mục, sau đó cập nhật lưới, bộ lọc và liên kết footer.
     async function loadCategories() {
         try {
             const response = await fetch('/api/categories', { cache: 'no-store' });
@@ -353,6 +372,7 @@
         }
     }
 
+    // Render các thẻ danh mục và gắn thao tác lọc sản phẩm.
     function renderCategories(categories) {
         categoriesGrid.innerHTML = categories.map(cat => `
             <div class="category-card animate-on-scroll" data-category-id="${escapeHtml(cat.id)}">
@@ -375,6 +395,7 @@
         observeNewElements();
     }
 
+    // Tạo nút lọc sản phẩm theo từng danh mục.
     function renderCategoryFilters(categories) {
         const filtersHTML = categories.map(cat =>
             `<button class="products__filter" data-category="${escapeHtml(cat.id)}">${escapeHtml(cat.name)}</button>`
@@ -393,6 +414,7 @@
         });
     }
 
+    // Render các liên kết danh mục trong footer.
     function renderFooterCategories(categories) {
         const footerCats = $('#footerCategories');
         if (!footerCats) return;
@@ -413,6 +435,7 @@
     }
 
     // Khi nhấn thẻ danh mục: cuộn đến sản phẩm và lọc theo danh mục
+    // Cuộn đến danh sách sản phẩm và lọc theo danh mục được chọn.
     window.__filterByCategory = function (categoryId) {
         const productsSection = $('#products');
         if (productsSection) {
@@ -430,6 +453,7 @@
     };
 
     // ============ SẢN PHẨM NỔI BẬT ============
+    // Tải các sản phẩm được đánh dấu nổi bật để hiển thị ở trang chủ.
     async function loadFeaturedProducts() {
         try {
             const response = await fetch('/api/products?featured=true');
@@ -450,6 +474,7 @@
     }
 
     // ============ TẤT CẢ SẢN PHẨM ============
+    // Tải danh sách sản phẩm đầy đủ để phục vụ lọc và phân trang.
     async function loadAllProducts() {
         try {
             const response = await fetch('/api/products');
@@ -468,6 +493,7 @@
         }
     }
 
+    // Lọc theo danh mục, cập nhật phân trang và render kết quả hiện tại.
     function filterAndRenderProducts() {
         let filtered;
         if (currentCategory === 'all') {
@@ -505,6 +531,7 @@
     }
 
     // ============ MẪU THẺ SẢN PHẨM ============
+    // Tạo HTML thẻ sản phẩm cho lưới thường hoặc khu vực nổi bật.
     function createProductCard(product, featured) {
         const categoryName = product.category_name ||
             (product.category && typeof product.category === 'object'
@@ -555,6 +582,7 @@
         `;
     }
 
+    // Tra tên danh mục từ dữ liệu đã tải, trả chuỗi rỗng nếu không tìm thấy.
     function getCategoryName(categoryId) {
         if (!categoryId) return '';
         const cat = categoriesData.find(c => String(c._id || c.id) === String(categoryId));
@@ -562,6 +590,7 @@
     }
 
     // ============ HỘP THOẠI CHI TIẾT SẢN PHẨM ============
+    // Gắn sự kiện mở, đóng và thao tác bàn phím cho modal sản phẩm.
     function setupModal() {
         modalClose.addEventListener('click', closeModal);
         modalOverlay.addEventListener('click', closeModal);
@@ -570,6 +599,7 @@
         });
     }
 
+    // Hiển thị thông tin sản phẩm; tải chi tiết từ API nếu chưa có sẵn.
     window.__showProductDetail = async function (productId) {
         // Tìm sản phẩm trong dữ liệu đã tải trước
         let product = allProducts.find(p => String(p._id || p.id) === String(productId));
@@ -645,16 +675,19 @@
         document.body.style.overflow = 'hidden';
     };
 
+    // Đóng modal sản phẩm qua hàm được gọi từ nút trong HTML động.
     window.__closeProductModal = function () {
         closeModal();
     };
 
+    // Đóng modal chi tiết và khôi phục trạng thái cuộn của trang.
     function closeModal() {
         productModal.classList.remove('active');
         document.body.style.overflow = '';
     }
 
     // ============ BIỂU MẪU LIÊN HỆ ============
+    // Gắn kiểm tra trường dữ liệu và submit form liên hệ.
     function setupContactForm() {
         contactForm.addEventListener('submit', handleContactSubmit);
 
@@ -669,6 +702,7 @@
         });
     }
 
+    // Kiểm tra một trường form và cập nhật thông báo lỗi tương ứng.
     function validateField(input) {
         const name = input.name;
         const value = input.value.trim();
@@ -725,6 +759,7 @@
         return isValid;
     }
 
+    // Gửi form liên hệ tới API và hiển thị kết quả cho người dùng.
     async function handleContactSubmit(e) {
         e.preventDefault();
 
@@ -780,6 +815,7 @@
         }
     }
 
+    // Hiển thị thông báo thành công hoặc lỗi dưới form liên hệ.
     function showFormMessage(message, type) {
         formMessage.textContent = message;
         formMessage.className = 'form-message ' + type;
@@ -791,6 +827,7 @@
     }
 
     // ============ CÀI ĐẶT ============
+    // Tải cài đặt lưu trên server rồi áp dụng lên nội dung trang chủ.
     async function loadSettings() {
         try {
             const res = await fetch('/api/settings');
@@ -802,6 +839,7 @@
         }
     }
 
+    // Cập nhật thông tin công ty, giới thiệu, cam kết và mạng xã hội.
     function applySettings(s) {
         if (!s || typeof s !== 'object') return;
         const companyName = s.companyName || s.company_name;
@@ -1009,6 +1047,7 @@
         }
     }
 
+    // Chỉ chấp nhận URL mạng xã hội có giao thức web hoặc mail an toàn.
     function getSafeSocialUrl(value) {
         if (typeof value !== 'string' || !value.trim()) return '';
         try {

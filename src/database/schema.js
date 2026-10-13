@@ -1,63 +1,12 @@
-require('dotenv').config();
-const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const { pool } = require('./connection');
 
-const poolConfig = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : undefined,
-    }
-  : {
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432', 10),
-      user: process.env.PGUSER || 'postgres',
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE || 'phao_chi',
-      ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : undefined,
-    };
-
-const pool = new Pool(poolConfig);
-
-function toPostgresPlaceholders(sql) {
-  let index = 0;
-  return sql.replace(/\?/g, () => `$${++index}`);
-}
-
-const db = {
-  query: (sql, params = []) => pool.query(toPostgresPlaceholders(sql), params),
-  prepare(sql) {
-    const query = toPostgresPlaceholders(sql);
-    return {
-      all: async (...params) => (await pool.query(query, params)).rows,
-      get: async (...params) => (await pool.query(query, params)).rows[0],
-      run: async (...params) => {
-        const result = await pool.query(query, params);
-        return {
-          changes: result.rowCount,
-          lastInsertRowid: result.rows[0] ? result.rows[0].id : undefined,
-        };
-      },
-    };
-  },
-  async transaction(callback) {
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      const result = await callback((sql, params = []) =>
-        client.query(toPostgresPlaceholders(sql), params)
-      );
-      await client.query('COMMIT');
-      return result;
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-  },
-  pool,
-};
-
+/**
+ * Create the application's tables and optionally seed the first admin user.
+ * ADMIN_USERNAME and ADMIN_PASSWORD must be configured together; an existing
+ * account is never replaced or reset by this initializer.
+ * @returns {Promise<void>} Resolves after schema setup and optional seeding.
+ */
 async function initializeDatabase() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
@@ -165,4 +114,4 @@ async function initializeDatabase() {
   }
 }
 
-module.exports = { ...db, initializeDatabase };
+module.exports = { initializeDatabase };

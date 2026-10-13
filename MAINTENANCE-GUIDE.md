@@ -7,48 +7,60 @@ Tài liệu này giúp xác định chức năng nằm ở đâu và cần kiể
 | Đường dẫn | Vai trò |
 |---|---|
 | `server.js` | Express server, cấu hình mặc định, xác thực, API công khai và API admin. |
-| `database.js` | Kết nối PostgreSQL, hàm truy vấn/transaction và khởi tạo bảng. |
-| `public/index.html` | Khung HTML của website chính; các vùng động được đánh dấu bằng `id`. |
-| `public/js/main.js` | Tương tác website, tải API và render nội dung động. |
-| `public/css/style.css` | Giao diện website chính và các breakpoint responsive. |
-| `public/admin/index.html` | Đăng nhập admin, thanh điều hướng và các `<template>` của từng trang quản trị. |
-| `public/js/admin.js` | Đăng nhập, điều hướng admin, form CRUD, upload ảnh và tải lịch sử. |
-| `public/css/admin.css` | Giao diện trang quản trị, form, bảng, modal và responsive. |
+| `src/database/connection.js` | Cấu hình PostgreSQL, connection pool, truy vấn và transaction. |
+| `src/database/schema.js` | Tạo bảng và khởi tạo tài khoản admin ban đầu. |
+| `src/database/index.js` | Điểm vào gom API database để `server.js` sử dụng. |
+| `public/site/index.html` | HTML của website chính. |
+| `public/site/css/` | Stylesheet riêng cho website chính. |
+| `public/site/js/` | JavaScript tải dữ liệu và điều khiển website chính. |
+| `public/admin/index.html` | HTML, menu và template của trang quản trị. |
+| `public/admin/css/` | Stylesheet riêng cho trang quản trị. |
+| `public/admin/js/` | JavaScript đăng nhập, CRUD và tương tác trang quản trị. |
 | `public/uploads/` | Ảnh được admin tải lên; dữ liệu ảnh thật nằm trên ổ đĩa. |
 | `.env.example` | Mẫu biến môi trường để cấu hình cổng, PostgreSQL và JWT. |
 | `package.json` | Lệnh chạy ứng dụng và các dependency Node.js. |
+
+### Quy tắc phân chia thư mục
+
+- `public/site/` chỉ chứa giao diện khách truy cập: HTML, CSS và JavaScript của trang chính.
+- `public/admin/` chỉ chứa giao diện quản trị: HTML, CSS và JavaScript của admin.
+- `src/database/` chỉ chứa kết nối/truy vấn và khởi tạo schema; `server.js` là điểm nối HTTP/API hiện tại.
+- Tài nguyên trong `public/` được Express phục vụ tĩnh. Trang chính `/` được ánh xạ tới `public/site/index.html`; trang admin `/admin` được ánh xạ tới `public/admin/index.html`.
+- URL mới cho tài nguyên là `/site/...` và `/admin/...`. Các URL CSS/JS cũ được giữ làm alias trong `server.js`; khi sửa HTML, dùng URL mới theo đúng khu vực.
 
 ## 2. Chức năng nằm ở đâu?
 
 | Chức năng | Website / giao diện admin | JavaScript giao diện | API / database |
 |---|---|---|---|
-| Trang chủ, điều hướng và bố cục các khu vực | `public/index.html` | `public/js/main.js` | — |
-| Banner / hero slides | Vùng `#heroSlider` trong `public/index.html`; template `tpl-hero-slides` trong admin | `main.js`: `loadHeroSlides`, `renderHeroSlides`; `admin.js`: `loadSlides`, `saveSlide`, `deleteSlide` | `/api/hero-slides`, `/api/admin/hero-slides`; bảng `hero_slides` |
-| Danh mục và bộ lọc sản phẩm | Vùng danh mục/footer trong `public/index.html`; template `tpl-categories` | `main.js`: `loadCategories`, render danh mục/footer/filter; `admin.js`: `loadCategories`, `saveCategory`, `deleteCategory` | `/api/categories`, `/api/admin/categories`; bảng `categories` |
-| Danh sách, lọc và chi tiết sản phẩm | Template `tpl-products`, modal trong `public/admin/index.html`; vùng sản phẩm trong `public/index.html` | `main.js`: tải/render/lọc/mở chi tiết; `admin.js`: `loadProducts`, `saveProduct`, `deleteProduct` | `/api/products`, `/api/admin/products`; bảng `products` |
-| Liên hệ, Zalo, email và địa chỉ | Form/liên hệ/footer trong `public/index.html`; template `tpl-contacts` | `main.js`: `setupContactForm`, `applySettings`; `admin.js`: `loadContacts`, `viewContact`, `deleteContact` | `/api/contacts`; `/api/admin/contacts`; bảng `contacts`; thông tin công ty ở `settings` |
-| Về chúng tôi | Section `#about` trong `public/index.html` | `main.js`: `applySettings`, render `aboutStats`, bộ đếm số liệu | `/api/settings`; các key `about*` trong bảng `settings` |
-| Cam kết | Vùng cam kết trong `public/index.html`; form trong `tpl-settings` | `main.js`: render `features`; `admin.js`: `renderFeatureSettings`, `saveSettings` | `/api/settings`; keys `features`, `featuresTitle` |
+| Trang chủ, điều hướng và bố cục các khu vực | `public/site/index.html` | `public/site/js/main.js` | — |
+| Banner / hero slides | Vùng `#heroSlider` trong `public/site/index.html`; template `tpl-hero-slides` trong admin | `main.js`: `loadHeroSlides`, `renderHeroSlides`; `admin.js`: `loadSlides`, `saveSlide`, `deleteSlide` | `/api/hero-slides`, `/api/admin/hero-slides`; bảng `hero_slides` |
+| Danh mục và bộ lọc sản phẩm | Vùng danh mục/footer trong `public/site/index.html`; template `tpl-categories` trong admin | `main.js`: `loadCategories`, render danh mục/footer/filter; `admin.js`: `loadCategories`, `saveCategory`, `deleteCategory` | `/api/categories`, `/api/admin/categories`; bảng `categories` |
+| Danh sách, lọc và chi tiết sản phẩm | Template `tpl-products`, modal trong `public/admin/index.html`; vùng sản phẩm trong `public/site/index.html` | `main.js`: tải/render/lọc/mở chi tiết; `admin.js`: `loadProducts`, `saveProduct`, `deleteProduct` | `/api/products`, `/api/admin/products`; bảng `products` |
+| Liên hệ, Zalo, email và địa chỉ | Form/liên hệ/footer trong `public/site/index.html`; template `tpl-contacts` | `main.js`: `setupContactForm`, `applySettings`; `admin.js`: `loadContacts`, `viewContact`, `deleteContact` | `/api/contacts`; `/api/admin/contacts`; bảng `contacts`; thông tin công ty ở `settings` |
+| Về chúng tôi | Section `#about` trong `public/site/index.html` | `main.js`: `applySettings`, render `aboutStats`, bộ đếm số liệu | `/api/settings`; các key `about*` trong bảng `settings` |
+| Cam kết | Vùng cam kết trong `public/site/index.html`; form trong `tpl-settings` | `main.js`: render `features`; `admin.js`: `renderFeatureSettings`, `saveSettings` | `/api/settings`; keys `features`, `featuresTitle` |
 | Tên công ty, logo, liên kết mạng xã hội và thông tin website | Header/footer website; form `tpl-settings` | `main.js`: `applySettings`; `admin.js`: `fillSettingsForm`, `saveSettings`, trình chọn social links | `/api/settings`; các key được lưu trong bảng `settings` |
 | Lịch sử ảnh đã upload | Template `tpl-upload-history` trong admin | `admin.js`: `loadUploadHistory`, `deleteUploadedImage` | `/api/admin/uploads`, `/api/admin/uploads/:id`; bảng `uploaded_images`; file trong `public/uploads/` |
 | Lịch sử hoạt động admin | Template `tpl-admin-history` trong admin | `admin.js`: `loadAdminHistory` | `/api/admin/audit-logs`; bảng `admin_audit_logs`; ghi nhận từ middleware trong `server.js` |
-| Đăng nhập/đăng xuất | Login form và admin layout trong `public/admin/index.html` | `admin.js`: `checkAuth`, `showLogin`, `showAdmin`, `handleLogout` | `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`; bảng `users` |
+| Đăng nhập/đăng xuất | Login form và admin layout trong `public/admin/index.html` | `public/admin/js/admin.js`: `checkAuth`, `showLogin`, `showAdmin`, `handleLogout` | `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`; bảng `users` |
 
 ## 3. Luồng dữ liệu cần nhớ
 
 ### Website
 
-1. `public/index.html` cung cấp các vùng HTML và `id` mà JavaScript cần tìm.
-2. `public/js/main.js` gọi API công khai trong `server.js`.
-3. API đọc PostgreSQL qua helper trong `database.js`, sau đó trả dữ liệu JSON.
-4. `main.js` render dữ liệu vào đúng vùng HTML. Cài đặt website được tải từ `/api/settings`.
+1. Sửa bố cục/section tại `public/site/index.html`; các `id` ở đây được `main.js` sử dụng.
+2. Sửa tương tác, tải API và render nội dung tại `public/site/js/main.js`.
+3. Sửa giao diện tại `public/site/css/style.css`.
+4. Endpoint công khai nằm trong `server.js`; truy vấn DB đi qua `src/database/index.js` và `src/database/connection.js`.
 
 ### Admin
 
-1. `public/admin/index.html` định nghĩa menu và template `tpl-*`.
-2. `public/js/admin.js` điều hướng theo hash (`#products`, `#settings`, ...), tạo giao diện từ template và gọi API.
-3. Các API admin dùng cookie đăng nhập và `authMiddleware`.
-4. `server.js` đọc/ghi PostgreSQL; ảnh upload được ghi vào `public/uploads/`.
+1. Sửa menu, form và template `tpl-*` tại `public/admin/index.html`.
+2. Sửa đăng nhập, điều hướng hash, CRUD và xử lý dữ liệu tại `public/admin/js/admin.js`.
+3. Sửa giao diện tại `public/admin/css/admin.css`.
+4. Endpoint admin và xác thực cookie nằm trong `server.js`; ảnh upload được ghi vào `public/uploads/`.
+
+Khi sửa một chức năng có cả website và admin, kiểm tra cả hai thư mục `public/site/` và `public/admin/`, cùng endpoint liên quan trong `server.js`. Không chuyển file giao diện dùng chung sang thư mục của khu vực còn lại nếu trang kia cũng cần sử dụng.
 
 ### Ảnh
 
@@ -99,7 +111,7 @@ Khi thêm route mới, kiểm tra route được khai báo **trước** fallback
 
 ## 5. Cơ sở dữ liệu
 
-Các bảng được khởi tạo bằng `initializeDatabase()` trong `database.js`:
+Các bảng được khởi tạo bằng `initializeDatabase()` trong `src/database/schema.js`:
 
 | Bảng | Dữ liệu |
 |---|---|
@@ -112,20 +124,24 @@ Các bảng được khởi tạo bằng `initializeDatabase()` trong `database.
 | `uploaded_images` | Thông tin tệp ảnh upload và người upload |
 | `admin_audit_logs` | Nhật ký thao tác admin |
 
-Khi thêm bảng/cột, cập nhật khởi tạo tương thích hiện có trong `database.js` và kiểm tra khởi động với PostgreSQL. Không chỉ sửa giao diện nếu dữ liệu cần lưu lâu dài.
+Khi thêm bảng/cột, cập nhật schema trong `src/database/schema.js` và kiểm tra khởi động với PostgreSQL. Không chỉ sửa giao diện nếu dữ liệu cần lưu lâu dài.
 
 ## 6. CSS và responsive
 
-- `public/css/style.css`: giao diện công khai. Tìm các khối theo selector của section, ví dụ `.hero`, `.about__*`, `.categories__*`, `.products__*`, `.features__*`, `.contact__*`, `.footer__*`, `.modal`.
-- `public/css/admin.css`: đăng nhập, sidebar/topbar, dashboard, bảng, form, upload ảnh, modal và các thẻ lịch sử.
+- `public/site/`: giao diện website chính; server phục vụ trang tại `/`.
+- `public/admin/`: giao diện quản trị; server phục vụ trang tại `/admin`.
+- HTML mới phải tham chiếu đúng stylesheet và script trong khu vực tương ứng: `/site/css/style.css`, `/site/js/main.js`, `/admin/css/admin.css`, `/admin/js/admin.js`.
+- Các URL tài nguyên cũ `/css/style.css`, `/css/admin.css`, `/js/main.js` và `/js/admin.js` vẫn được ánh xạ trong `server.js` để tránh làm hỏng client/bookmark cũ; không dùng các URL alias này cho HTML mới.
+- `public/site/css/style.css`: giao diện công khai. Tìm các khối theo selector của section, ví dụ `.hero`, `.about__*`, `.categories__*`, `.products__*`, `.features__*`, `.contact__*`, `.footer__*`, `.modal`.
+- `public/admin/css/admin.css`: đăng nhập, sidebar/topbar, dashboard, bảng, form, upload ảnh, modal và các thẻ lịch sử.
 - Các media query responsive nằm ở cuối hai file CSS. Sau khi sửa một thành phần, kiểm tra cả màn hình desktop và các breakpoint mobile hiện có để tránh rule cũ ghi đè.
 - Nếu thêm lớp HTML mới, đặt tên nhất quán với component/section đang sửa và thêm style responsive tương ứng.
 
 ## 7. Quy trình cập nhật an toàn
 
-1. Tìm giao diện trước trong `public/index.html` hoặc template tương ứng ở `public/admin/index.html`.
-2. Lần theo `id`/class đến `public/js/main.js` hoặc `public/js/admin.js`.
-3. Kiểm tra API và middleware trong `server.js`; kiểm tra bảng và schema trong `database.js`.
+1. Xác định khu vực trước: website ở `public/site/`, admin ở `public/admin/`.
+2. Tìm HTML/template, lần theo `id`/class đến JavaScript của cùng khu vực.
+3. Kiểm tra API và middleware trong `server.js`; kiểm tra bảng trong `src/database/schema.js` và truy vấn trong `src/database/connection.js`.
 4. Với nội dung cần đồng bộ, cập nhật cả: form admin → payload lưu → API/database → API đọc → render website.
 5. Với ảnh, dùng endpoint upload; xác minh URL đã được lưu và lịch sử nhận được tệp.
 6. Sửa CSS trong stylesheet tương ứng; kiểm tra desktop/mobile.
@@ -133,12 +149,14 @@ Khi thêm bảng/cột, cập nhật khởi tạo tương thích hiện có tron
 
    ```powershell
    node --check .\server.js
-   node --check .\database.js
-   node --check .\public\js\main.js
-   node --check .\public\js\admin.js
+   node --check .\src\database\connection.js
+   node --check .\src\database\schema.js
+   node --check .\src\database\index.js
+   node --check .\public\site\js\main.js
+   node --check .\public\admin\js\admin.js
    ```
 
-8. Khởi động lại server sau khi sửa `server.js` hoặc `database.js`; hard refresh trình duyệt sau khi sửa JavaScript/CSS.
+8. Khởi động lại server sau khi sửa `server.js` hoặc `src/database/`; hard refresh trình duyệt sau khi sửa JavaScript/CSS.
 9. Kiểm tra API đã đăng nhập khi thử endpoint admin. `401` nghĩa là route yêu cầu đăng nhập; `404` nghĩa là sai route, server cũ hoặc route chưa được khai báo trước fallback.
 
 ## 8. Cấu hình và dữ liệu nhạy cảm
@@ -195,7 +213,7 @@ Khi thêm bảng/cột, cập nhật khởi tạo tương thích hiện có tron
 3. Thêm PostgreSQL service cho project. Đặt biến `DATABASE_URL` của ứng dụng trỏ đến connection URL riêng tư của PostgreSQL service trong Railway. Không dùng URL database trên máy cá nhân.
 4. Thêm `NODE_ENV=production` và một `JWT_SECRET` ngẫu nhiên, duy nhất, tối thiểu 32 ký tự vào phần Variables/Environment Variables của service. Nếu database chưa có tài khoản admin, đặt cả `ADMIN_USERNAME` và `ADMIN_PASSWORD` (ít nhất 12 ký tự), deploy để tạo tài khoản, rồi gỡ hai biến bootstrap. Không ghi các giá trị bí mật vào GitHub hoặc tài liệu.
 5. Tạo persistent volume cho thư mục upload. Đường dẫn mount phải trùng thư mục upload mà ứng dụng đang dùng (`public/uploads` bên trong thư mục dự án; trong `server.js`, đường dẫn hiện được tạo từ `__dirname`). Xác minh mount path thực tế của Node service trước khi dùng. Nếu không có persistent volume, ảnh mới có thể mất khi service được redeploy.
-6. Deploy và xem log khởi động. `database.js` sẽ tạo các bảng còn thiếu khi ứng dụng kết nối database thành công.
+6. Deploy và xem log khởi động. `src/database/schema.js` sẽ tạo các bảng còn thiếu khi ứng dụng kết nối database thành công.
 7. Mở URL Railway cấp để kiểm tra trang chính, đăng nhập admin, CRUD, upload ảnh. Restart/redeploy thử để xác minh database và ảnh vẫn tồn tại.
 8. Nếu cần dùng dữ liệu local hiện tại, restore bản backup vào PostgreSQL production và chép các file tương ứng từ `public/uploads/` vào persistent volume. Cần làm cả hai việc để dữ liệu tham chiếu ảnh không bị hỏng.
 9. Sau khi kiểm tra, cấu hình custom domain trong Railway và cập nhật DNS theo hướng dẫn của nhà cung cấp. Kiểm tra website qua HTTPS trước khi gửi khách.

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('./database');
+const db = require('./src/database');
 
 // ─── Cấu hình ─────────────────────────────────────────────────────────────────
 
@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = '7d';
 const DEFAULT_SETTINGS = {
-  companyName: 'Guline',
-  phone: '0356678961',
-  email: 'tantue0344@gmail.com',
-  address: '236/2, TL41, An Phú Đông, Hồ Chí Minh',
+  companyName: '',
+  phone: '',
+  email: '',
+  address: '',
   about: 'Chuyên sản xuất và phân phối phào chỉ trang trí cao cấp. Đa dạng mẫu mã, chất lượng vượt trội, giá cả hợp lý.',
   aboutTitle: 'Về Chúng Tôi',
   aboutTitleText: 'Đơn Vị Hàng Đầu Về Phào Chỉ Trang Trí',
@@ -65,6 +65,11 @@ const DEFAULT_SETTINGS = {
   ]),
 };
 
+/**
+ * Merge persisted website settings with defaults and support legacy key names.
+ * @param {Array<{key: string, value: string}>} rows Stored setting rows.
+ * @returns {object} Complete settings object consumed by the website.
+ */
 function mergeSettings(rows) {
   const settings = { ...DEFAULT_SETTINGS };
   const storedKeys = new Set();
@@ -94,12 +99,31 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Tệp tĩnh
+// Phục vụ tệp tĩnh từ public/; các asset mới nằm dưới site/ hoặc admin/.
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 app.use(express.static(publicDir));
+
+// Alias tương thích cho URL CSS/JS cũ; HTML mới dùng URL /site/... hoặc /admin/....
+app.use('/css', express.static(path.join(publicDir, 'site', 'css')));
+app.use('/js', express.static(path.join(publicDir, 'site', 'js')));
+app.get('/css/admin.css', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'admin', 'css', 'admin.css'));
+});
+app.get('/js/admin.js', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'admin', 'js', 'admin.js'));
+});
+
+// Ánh xạ URL gốc và URL index.html cũ tới trang chính trong public/site/.
+app.get(['/', '/index.html'], (_req, res) => {
+  res.sendFile(path.join(publicDir, 'site', 'index.html'));
+});
+// Ánh xạ các URL admin về trang public/admin/index.html.
+app.get(['/admin', '/admin/', '/admin/index.html'], (_req, res) => {
+  res.sendFile(path.join(publicDir, 'admin', 'index.html'));
+});
 
 // Thư mục lưu ảnh tải lên
 const uploadsDir = path.join(publicDir, 'uploads');
@@ -135,6 +159,12 @@ const upload = multer({
 
 // ─── Hàm trung gian xác thực ──────────────────────────────────────────────────
 
+/**
+ * Verify the session cookie and attach its decoded user to the request.
+ * @param {import('express').Request} req Incoming HTTP request.
+ * @param {import('express').Response} res HTTP response.
+ * @param {import('express').NextFunction} next Continue to the protected route.
+ */
 function authMiddleware(req, res, next) {
   const token = req.cookies.token;
   if (!token) {
@@ -151,6 +181,11 @@ function authMiddleware(req, res, next) {
 
 // ─── Tiện ích: tạo slug ───────────────────────────────────────────────────────
 
+/**
+ * Convert Vietnamese text into a normalized URL/database slug.
+ * @param {string} text Source text, such as a product or category name.
+ * @returns {string} Lowercase slug with ASCII letters and hyphens.
+ */
 function generateSlug(text) {
   return text
     .toLowerCase()
@@ -164,6 +199,11 @@ function generateSlug(text) {
     .replace(/^-|-$/g, '');
 }
 
+/**
+ * Identify duplicate-key errors from PostgreSQL or legacy query adapters.
+ * @param {Error & {code?: string}} err Database error to inspect.
+ * @returns {boolean} Whether the error represents a uniqueness violation.
+ */
 function isUniqueViolation(err) {
   return err.code === '23505' || (err.message && err.message.includes('UNIQUE'));
 }
@@ -394,6 +434,12 @@ admin.use((req, res, next) => {
   next();
 });
 
+/**
+ * Save uploaded-file metadata so the admin image library can manage it.
+ * @param {object} file Multer file details.
+ * @param {string} username Admin account that uploaded the file.
+ * @returns {Promise<void>}
+ */
 async function registerUploadedImage(file, username) {
   await db.prepare(
     `INSERT INTO uploaded_images (filename, original_name, url, mime_type, size_bytes, uploaded_by)
@@ -414,6 +460,10 @@ async function registerUploadedImage(file, username) {
   );
 }
 
+/**
+ * Add files that predate image-history tracking to the database once.
+ * @returns {Promise<void>}
+ */
 async function syncUploadedImageHistory() {
   const entries = await fs.promises.readdir(uploadsDir, { withFileTypes: true });
   for (const entry of entries) {
@@ -445,6 +495,10 @@ async function syncUploadedImageHistory() {
   }
 }
 
+/**
+ * Collect upload URLs referenced by content and settings before deletion.
+ * @returns {Promise<Set<string>>} URLs that must remain available.
+ */
 async function collectReferencedUploadUrls() {
   const [products, categories, slides, settings] = await Promise.all([
     db.prepare('SELECT image, gallery FROM products').all(),
@@ -539,6 +593,7 @@ admin.post('/upload-multiple', upload.array('images', 20), async (req, res) => {
   }
 });
 
+// GET /uploads: đồng bộ và trả lịch sử các ảnh đã tải lên.
 admin.get('/uploads', async (_req, res) => {
   try {
     await syncUploadedImageHistory();
@@ -556,6 +611,7 @@ admin.get('/uploads', async (_req, res) => {
   }
 });
 
+// DELETE /uploads/:id: chỉ xóa tệp nếu không còn được nội dung tham chiếu.
 admin.delete('/uploads/:id', async (req, res) => {
   try {
     const image = await db.prepare('SELECT * FROM uploaded_images WHERE id = ?').get(req.params.id);
@@ -590,6 +646,7 @@ admin.delete('/uploads/:id', async (req, res) => {
   }
 });
 
+// GET /audit-logs: trả các thao tác quản trị gần đây.
 admin.get('/audit-logs', async (_req, res) => {
   try {
     await adminAuditWriteQueue;
@@ -605,6 +662,7 @@ admin.get('/audit-logs', async (_req, res) => {
 
 // ─── Thêm, đọc, sửa, xóa sản phẩm trong trang quản trị ────────────────────────
 
+// GET /products: trả danh sách sản phẩm quản trị, có thể lọc theo từ khóa.
 admin.get('/products', async (req, res) => {
   try {
     const products = await db
@@ -623,6 +681,7 @@ admin.get('/products', async (req, res) => {
   }
 });
 
+// GET /products/:id: trả một sản phẩm theo ID.
 admin.get('/products/:id', async (req, res) => {
   try {
     const product = await db
@@ -644,6 +703,7 @@ admin.get('/products/:id', async (req, res) => {
   }
 });
 
+// POST /products: xác thực dữ liệu và tạo sản phẩm mới.
 admin.post('/products', async (req, res) => {
   try {
     const { name, description, price, material, dimensions, image, featured } = req.body;
@@ -700,6 +760,7 @@ admin.post('/products', async (req, res) => {
   }
 });
 
+// PUT /products/:id: cập nhật các trường được gửi cho sản phẩm hiện có.
 admin.put('/products/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
@@ -765,6 +826,7 @@ admin.put('/products/:id', async (req, res) => {
   }
 });
 
+// DELETE /products/:id: xóa sản phẩm theo ID.
 admin.delete('/products/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
@@ -781,6 +843,7 @@ admin.delete('/products/:id', async (req, res) => {
 
 // ─── Thêm, đọc, sửa, xóa danh mục trong trang quản trị ────────────────────────
 
+// GET /categories: trả danh sách danh mục theo thứ tự sắp xếp.
 admin.get('/categories', async (_req, res) => {
   try {
     const categories = await db.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all();
@@ -791,6 +854,7 @@ admin.get('/categories', async (_req, res) => {
   }
 });
 
+// GET /categories/:id: trả một danh mục theo ID.
 admin.get('/categories/:id', async (req, res) => {
   try {
     const category = await db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
@@ -804,6 +868,7 @@ admin.get('/categories/:id', async (req, res) => {
   }
 });
 
+// POST /categories: tạo danh mục mới sau khi kiểm tra tên.
 admin.post('/categories', async (req, res) => {
   try {
     const { name, description, image, sort_order } = req.body;
@@ -827,6 +892,7 @@ admin.post('/categories', async (req, res) => {
   }
 });
 
+// PUT /categories/:id: cập nhật thông tin danh mục hiện có.
 admin.put('/categories/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
@@ -860,6 +926,7 @@ admin.put('/categories/:id', async (req, res) => {
   }
 });
 
+// DELETE /categories/:id: xóa danh mục theo ID.
 admin.delete('/categories/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
@@ -876,6 +943,7 @@ admin.delete('/categories/:id', async (req, res) => {
 
 // ─── Thêm, đọc, sửa, xóa ảnh trình chiếu trong trang quản trị ─────────────────
 
+// GET /hero-slides: trả toàn bộ slide cho giao diện quản trị.
 admin.get('/hero-slides', async (_req, res) => {
   try {
     const slides = await db.prepare('SELECT * FROM hero_slides ORDER BY sort_order ASC').all();
@@ -886,6 +954,7 @@ admin.get('/hero-slides', async (_req, res) => {
   }
 });
 
+// GET /hero-slides/:id: trả một slide theo ID.
 admin.get('/hero-slides/:id', async (req, res) => {
   try {
     const slide = await db.prepare('SELECT * FROM hero_slides WHERE id = ?').get(req.params.id);
@@ -899,6 +968,7 @@ admin.get('/hero-slides/:id', async (req, res) => {
   }
 });
 
+// POST /hero-slides: tạo slide mới và đặt thứ tự hiển thị.
 admin.post('/hero-slides', async (req, res) => {
   try {
     const { title, subtitle, image, button_text, button_link, sort_order, active } = req.body;
@@ -929,6 +999,7 @@ admin.post('/hero-slides', async (req, res) => {
   }
 });
 
+// PUT /hero-slides/:id: cập nhật slide hiện có.
 admin.put('/hero-slides/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM hero_slides WHERE id = ?').get(req.params.id);
@@ -962,6 +1033,7 @@ admin.put('/hero-slides/:id', async (req, res) => {
   }
 });
 
+// DELETE /hero-slides/:id: xóa slide theo ID.
 admin.delete('/hero-slides/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM hero_slides WHERE id = ?').get(req.params.id);
@@ -978,6 +1050,7 @@ admin.delete('/hero-slides/:id', async (req, res) => {
 
 // ─── Cài đặt trong trang quản trị ─────────────────────────────────────────────
 
+// PUT /settings: lưu các thiết lập website đã gửi từ trang quản trị.
 admin.put('/settings', async (req, res) => {
   try {
     const settings = req.body;
@@ -1016,6 +1089,7 @@ admin.put('/settings', async (req, res) => {
 
 // ─── Tin nhắn liên hệ trong trang quản trị ────────────────────────────────────
 
+// GET /contacts: trả danh sách liên hệ, có thể chỉ lấy tin chưa đọc.
 admin.get('/contacts', async (req, res) => {
   try {
     const { unread } = req.query;
@@ -1035,6 +1109,7 @@ admin.get('/contacts', async (req, res) => {
   }
 });
 
+// PUT /contacts/:id/read: đánh dấu một liên hệ là đã đọc.
 admin.put('/contacts/:id/read', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM contacts WHERE id = ?').get(req.params.id);
@@ -1050,6 +1125,7 @@ admin.put('/contacts/:id/read', async (req, res) => {
   }
 });
 
+// DELETE /contacts/:id: xóa một liên hệ theo ID.
 admin.delete('/contacts/:id', async (req, res) => {
   try {
     const existing = await db.prepare('SELECT * FROM contacts WHERE id = ?').get(req.params.id);
@@ -1091,6 +1167,10 @@ app.use('/api/*', (_req, res) => {
 
 // ─── Khởi động máy chủ ────────────────────────────────────────────────────────
 
+/**
+ * Validate required configuration, initialize PostgreSQL, and listen for HTTP.
+ * @returns {Promise<void>}
+ */
 async function startServer() {
   if (!JWT_SECRET || JWT_SECRET.length < 32) {
     throw new Error('JWT_SECRET must be configured with a unique value of at least 32 characters.');
